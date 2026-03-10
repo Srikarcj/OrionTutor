@@ -1,0 +1,6 @@
+D:\DESKTOP-C\LLM TUTORIALS\OrionTutor\youtube-ai-study\backend\.venv\Lib\site-packages\requests\__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.0.1)/charset_normalizer (3.4.5) doesn't match a supported version!
+  warnings.warn(
+INFO:     Started server process [9964]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
