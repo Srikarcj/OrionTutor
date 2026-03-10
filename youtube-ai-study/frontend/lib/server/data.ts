@@ -288,8 +288,8 @@ export async function saveVideoResult(input: {
 
   if (Array.isArray(input.visualInsights)) {
     await db.from("visual_insights").delete().eq("video_id", savedVideoId);
-    const payload = input.visualInsights.map((item) => ({
-      video_id: savedVideoId,
+    const payload: Database["public"]["Tables"]["visual_insights"]["Insert"][] = input.visualInsights.map((item) => ({
+      video_id: savedVideoId!,
       timestamp: item.timestamp || null,
       seconds: item.seconds ?? null,
       visual_type: item.visual_type || null,
