@@ -15,6 +15,20 @@ type Database = {
           created_at: string;
           updated_at: string;
         };
+        Insert: {
+          id?: string;
+          clerk_user_id: string;
+          email: string;
+          plan?: "free" | "pro";
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          clerk_user_id?: string;
+          email?: string;
+          plan?: "free" | "pro";
+          updated_at?: string;
+        };
       };
       videos: {
         Row: {
@@ -25,6 +39,21 @@ type Database = {
           thumbnail: string;
           source_video_id: string;
           created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          youtube_url: string;
+          title: string;
+          thumbnail: string;
+          source_video_id?: string;
+          created_at?: string;
+        };
+        Update: {
+          youtube_url?: string;
+          title?: string;
+          thumbnail?: string;
+          source_video_id?: string;
         };
       };
       video_content: {
@@ -39,6 +68,25 @@ type Database = {
           pdf_url: string | null;
           created_at: string;
         };
+        Insert: {
+          id?: string;
+          video_id: string;
+          transcript: string;
+          summary: string;
+          notes: Json;
+          chapters: Json;
+          quiz: Json;
+          pdf_url: string | null;
+          created_at?: string;
+        };
+        Update: {
+          transcript?: string;
+          summary?: string;
+          notes?: Json;
+          chapters?: Json;
+          quiz?: Json;
+          pdf_url?: string | null;
+        };
       };
       library: {
         Row: {
@@ -46,6 +94,139 @@ type Database = {
           user_id: string;
           video_id: string;
           saved_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          video_id: string;
+          saved_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          video_id?: string;
+          saved_at?: string;
+        };
+      };
+      notes: {
+        Row: {
+          id: string;
+          video_id: string;
+          summary: string;
+          structured_notes: Json;
+          transcript: string;
+          topics: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          video_id: string;
+          summary: string;
+          structured_notes: Json;
+          transcript: string;
+          topics?: Json | null;
+          created_at?: string;
+        };
+        Update: {
+          summary?: string;
+          structured_notes?: Json;
+          transcript?: string;
+          topics?: Json | null;
+        };
+      };
+      mindmap: {
+        Row: {
+          id: string;
+          video_id: string;
+          mindmap_json: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          video_id: string;
+          mindmap_json: Json;
+          created_at?: string;
+        };
+        Update: {
+          mindmap_json?: Json;
+        };
+      };
+      flashcards: {
+        Row: {
+          id: string;
+          video_id: string;
+          question: string;
+          answer: string;
+          category: string | null;
+          difficulty: string | null;
+          bullets: Json | null;
+          position: number | null;
+          learned: boolean | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          video_id: string;
+          question: string;
+          answer: string;
+          category?: string | null;
+          difficulty?: string | null;
+          bullets?: Json | null;
+          position?: number | null;
+          learned?: boolean | null;
+          created_at?: string;
+        };
+        Update: {
+          question?: string;
+          answer?: string;
+          category?: string | null;
+          difficulty?: string | null;
+          bullets?: Json | null;
+          position?: number | null;
+          learned?: boolean | null;
+        };
+      };
+      visual_insights: {
+        Row: {
+          id: string;
+          video_id: string;
+          timestamp: string | null;
+          seconds: number | null;
+          visual_type: string | null;
+          title: string | null;
+          image_url: string | null;
+          extracted_text: string | null;
+          ai_explanation: string | null;
+          bullets: Json | null;
+          tags: Json | null;
+          key_moment: boolean | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          video_id: string;
+          timestamp?: string | null;
+          seconds?: number | null;
+          visual_type?: string | null;
+          title?: string | null;
+          image_url?: string | null;
+          extracted_text?: string | null;
+          ai_explanation?: string | null;
+          bullets?: Json | null;
+          tags?: Json | null;
+          key_moment?: boolean | null;
+          created_at?: string;
+        };
+        Update: {
+          timestamp?: string | null;
+          seconds?: number | null;
+          visual_type?: string | null;
+          title?: string | null;
+          image_url?: string | null;
+          extracted_text?: string | null;
+          ai_explanation?: string | null;
+          bullets?: Json | null;
+          tags?: Json | null;
+          key_moment?: boolean | null;
         };
       };
     };
