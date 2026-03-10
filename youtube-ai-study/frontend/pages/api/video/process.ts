@@ -84,10 +84,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const cachedVisualInsights = (cached as any)?.visual_insights_rows;
     if (cached && cachedContent) {
       const content = cachedContent as any;
+      const cachedId = (cached as any)?.id;
       return res.status(200).json({
-        video_id: cached.id,
-        title: cached.title,
-        thumbnail: cached.thumbnail,
+        video_id: cachedId,
+        title: (cached as any)?.title,
+        thumbnail: (cached as any)?.thumbnail,
       notes: sanitizeNotes(content.notes),
       transcript: content.transcript || "",
       summary: content.summary || "",
