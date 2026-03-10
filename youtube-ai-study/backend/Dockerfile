@@ -13,5 +13,5 @@ ENV PYTHONPATH=/app
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "mkdir -p /app/backend/generated_pdfs /app/backend/cache /app/backend/vectorstore && uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
 
