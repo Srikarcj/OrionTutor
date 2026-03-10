@@ -16,3 +16,7 @@ youtube-ai-study/backend/cache/
 youtube-ai-study/backend/generated_pdfs/
 youtube-ai-study/backend/vectorstore/*.json
 youtube-ai-study/backend/vectorstore/*.npy
+
+# local env
+.env.local
+
