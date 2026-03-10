@@ -1,5 +1,5 @@
 import type { Notes } from "../types";
-import { getDb } from "./db";
+import { getDb, type Database } from "./db";
 import { limitForPlan, monthStart, normalizePlan } from "../plans";
 
 type UserRow = {
@@ -10,10 +10,10 @@ type UserRow = {
 
 export async function upsertUser(row: UserRow) {
   const db = getDb();
-  const payload = {
+  const payload: Database["public"]["Tables"]["users"]["Insert"] = {
     clerk_user_id: row.clerk_user_id,
     email: row.email,
-  } as any;
+  };
 
   const { data, error } = await db
     .from("users")
@@ -162,7 +162,7 @@ export async function saveVideoResult(input: {
   let savedVideoId: string | null = (existing.data as any)?.id || null;
 
   if (!savedVideoId) {
-    const insertVariants: Array<Record<string, any>> = [
+    const insertVariants: Array<Database["public"]["Tables"]["videos"]["Insert"]> = [
       {
         id: input.id,
         user_id: input.userId,
@@ -183,11 +183,12 @@ export async function saveVideoResult(input: {
         youtube_url: input.youtubeUrl,
         title: input.title,
         thumbnail: input.thumbnail,
+        source_video_id: input.sourceVideoId,
       },
     ];
 
     for (const payload of insertVariants) {
-      const inserted = await db.from("videos").insert(payload as any).select("id").single();
+      const inserted = await db.from("videos").insert(payload).select("id").single();
       if (!inserted.error && (inserted.data as any)?.id) {
         savedVideoId = String((inserted.data as any).id);
         break;
@@ -197,7 +198,7 @@ export async function saveVideoResult(input: {
     // Keep title/thumbnail fresh for existing rows.
     await db
       .from("videos")
-      .update({ title: input.title, thumbnail: input.thumbnail } as any)
+      .update({ title: input.title, thumbnail: input.thumbnail } as Database["public"]["Tables"]["videos"]["Update"])
       .eq("id", savedVideoId);
   }
 

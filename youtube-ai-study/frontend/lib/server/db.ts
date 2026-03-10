@@ -3,7 +3,7 @@ import { readRequired } from "./env";
 
 type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
-type Database = {
+export type Database = {
   public: {
     Tables: {
       users: {
@@ -230,6 +230,10 @@ type Database = {
         };
       };
     };
+    Views: {};
+    Functions: {};
+    Enums: {};
+    CompositeTypes: {};
   };
 };
 
