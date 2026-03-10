@@ -124,6 +124,10 @@ export default function DashboardPage() {
   const [visualAnswer, setVisualAnswer] = useState("");
   const [isVisualAsking, setIsVisualAsking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [useCustomTranscript, setUseCustomTranscript] = useState(false);
+  const [customTranscript, setCustomTranscript] = useState("");
+  const [transcriptFileName, setTranscriptFileName] = useState<string | null>(null);
+  const [transcriptFileError, setTranscriptFileError] = useState<string | null>(null);
   const [pendingVideoId, setPendingVideoId] = useState<string | null>(null);
   const [showTranscriptModal, setShowTranscriptModal] = useState(false);
   const [activeTab, setActiveTab] = useState("Summary");
@@ -251,6 +255,7 @@ export default function DashboardPage() {
   async function processVideo(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setTranscriptFileError(null);
     setAnswer("");
     setIsProcessing(true);
     const startedAt = Date.now();
@@ -258,7 +263,12 @@ export default function DashboardPage() {
       const data = await fetchJson<ProcessResponse>("/api/video/process", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ youtube_url: youtubeUrl }),
+        body: JSON.stringify({
+          youtube_url: youtubeUrl,
+          ...(useCustomTranscript && customTranscript.trim()
+            ? { transcript_text: customTranscript.trim() }
+            : {}),
+        }),
       });
 
       const durationSeconds = getVideoDurationSeconds(data.transcript || "");
@@ -312,6 +322,9 @@ export default function DashboardPage() {
         ];
       });
       setYoutubeUrl("");
+      setCustomTranscript("");
+      setTranscriptFileName(null);
+      setUseCustomTranscript(false);
       if (data.pending) {
         setPendingVideoId(data.video_id);
       } else {
@@ -483,6 +496,56 @@ export default function DashboardPage() {
                   placeholder="Paste a YouTube link..."
                 />
               </div>
+              <button
+                type="button"
+                className="link-button"
+                onClick={() => setUseCustomTranscript((prev) => !prev)}
+              >
+                {useCustomTranscript ? "Hide custom transcript" : "Use custom transcript"}
+              </button>
+              {useCustomTranscript ? (
+                <>
+                  <div className="hero-transcript-upload">
+                    <label className="file-label">
+                      <input
+                        type="file"
+                        accept=".txt,.md,.srt,.vtt,text/plain"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0] || null;
+                          if (!file) {
+                            setTranscriptFileName(null);
+                            return;
+                          }
+                          if (file.size > 2 * 1024 * 1024) {
+                            setTranscriptFileError("Transcript file is too large (max 2MB).");
+                            setTranscriptFileName(null);
+                            return;
+                          }
+                          const text = await file.text();
+                          setCustomTranscript(text);
+                          setTranscriptFileName(file.name);
+                          setTranscriptFileError(null);
+                        }}
+                      />
+                      Upload transcript file
+                    </label>
+                    {transcriptFileName ? (
+                      <span className="file-name">Loaded: {transcriptFileName}</span>
+                    ) : (
+                      <span className="file-name">.txt, .md, .srt, .vtt</span>
+                    )}
+                  </div>
+                  <Textarea
+                    value={customTranscript}
+                    onChange={(e) => setCustomTranscript(e.target.value)}
+                    placeholder="Paste the video transcript here if YouTube is blocked..."
+                    className="hero-transcript"
+                  />
+                  {transcriptFileError ? (
+                    <p className="error-text">{transcriptFileError}</p>
+                  ) : null}
+                </>
+              ) : null}
             <Button
               variant="default"
               size="lg"

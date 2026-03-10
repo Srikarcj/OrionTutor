@@ -6,6 +6,7 @@ export const processVideoSchema = z.object({
   youtube_url: z.string().trim().url().refine((value) => youtubeRegex.test(value), {
     message: "Please provide a valid YouTube URL.",
   }),
+  transcript_text: z.string().trim().min(20, "Transcript is too short.").optional(),
 });
 
 export const askQuestionSchema = z.object({

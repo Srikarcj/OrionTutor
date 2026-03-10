@@ -18,6 +18,7 @@ router = APIRouter()
 
 class VideoProcessRequest(BaseModel):
     youtube_url: HttpUrl
+    transcript_text: str | None = None
 
 
 class NotesSchema(BaseModel):
@@ -69,6 +70,58 @@ def _ensure_notes_schema(notes: Dict[str, Any] | None, transcript: str, video_id
     }
 
 
+def _build_manual_transcript_payload(video_id: str, transcript_text: str) -> Dict[str, Any]:
+    text = re.sub(r"\s+\n", "\n", transcript_text or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Transcript text is empty.")
+
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    timestamp_regex = re.compile(r"^(?:(\d+):)?(\d{1,2}):(\d{2})\s+(.+)$")
+    has_timestamps = any(timestamp_regex.match(line) for line in lines)
+
+    raw_entries: list[dict] = []
+    timestamped_lines: list[str] = []
+    last_start = 0.0
+    default_duration = 5.0
+
+    if has_timestamps:
+        for line in lines:
+            match = timestamp_regex.match(line)
+            if match:
+                hours = int(match.group(1) or 0)
+                minutes = int(match.group(2) or 0)
+                seconds = int(match.group(3) or 0)
+                start = hours * 3600 + minutes * 60 + seconds
+                text_value = match.group(4).strip()
+            else:
+                start = last_start + default_duration
+                text_value = line
+            start = max(start, last_start)
+            raw_entries.append({"text": text_value, "start": float(start), "duration": default_duration})
+            mins = int(start) // 60
+            secs = int(start) % 60
+            timestamped_lines.append(f"{mins:02d}:{secs:02d} {text_value}")
+            last_start = start
+    else:
+        sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", " ".join(lines)) if s.strip()]
+        for idx, sentence in enumerate(sentences):
+            start = float(idx) * default_duration
+            raw_entries.append({"text": sentence, "start": start, "duration": default_duration})
+            mins = int(start) // 60
+            secs = int(start) % 60
+            timestamped_lines.append(f"{mins:02d}:{secs:02d} {sentence}")
+
+    cleaned_text = " ".join([entry.get("text", "") for entry in raw_entries]).strip()
+    timestamped_text = "\n".join(timestamped_lines)
+
+    return {
+        "video_id": video_id,
+        "raw_entries": raw_entries,
+        "cleaned_text": cleaned_text,
+        "timestamped_text": timestamped_text,
+    }
+
+
 @router.post("/process", response_model=VideoProcessResponse)
 async def process_video(request: VideoProcessRequest) -> Dict[str, Any]:
     """
@@ -85,7 +138,7 @@ async def process_video(request: VideoProcessRequest) -> Dict[str, Any]:
     except TranscriptError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
-    cached = load_cached_video(video_id)
+    cached = None if request.transcript_text and request.transcript_text.strip() else load_cached_video(video_id)
     if cached and cached.get("notes") and cached.get("transcript"):
         cached_transcript = cached.get("transcript", "")
         safe_notes = _ensure_notes_schema(cached.get("notes"), cached_transcript, video_id)
@@ -101,7 +154,10 @@ async def process_video(request: VideoProcessRequest) -> Dict[str, Any]:
         }
 
     try:
-        transcript_payload = get_clean_transcript(str(request.youtube_url))
+        if request.transcript_text and request.transcript_text.strip():
+            transcript_payload = _build_manual_transcript_payload(video_id, request.transcript_text)
+        else:
+            transcript_payload = get_clean_transcript(str(request.youtube_url))
     except TranscriptError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     except Exception as exc:

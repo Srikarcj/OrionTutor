@@ -82,6 +82,19 @@ def fetch_raw_transcript(video_id: str, language_preference: List[str] | None = 
     except (TranscriptsDisabled, NoTranscriptFound) as exc:
         raise TranscriptError("Transcripts are disabled or unavailable for this video.") from exc
     except Exception as exc:  # pragma: no cover - defensive
+        message = str(exc)
+        blocked_markers = [
+            "blocking requests from your IP",
+            "TooManyRequests",
+            "HTTP Error 429",
+            "blocked by YouTube",
+        ]
+        if any(marker.lower() in message.lower() for marker in blocked_markers):
+            raise TranscriptError(
+                "YouTube blocked transcript requests from this server IP. "
+                "Try running the backend locally, using a different hosting IP, "
+                "or provide a manual transcript."
+            ) from exc
         # Keep root cause visible to API callers for faster debugging in dev.
         raise TranscriptError(f"Failed to fetch transcript from YouTube: {exc}") from exc
 

@@ -69,12 +69,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const youtubeUrl = parsed.data.youtube_url;
+    const transcriptText = parsed.data.transcript_text?.trim();
     const email = String((auth.sessionClaims?.email as string) || `${auth.userId}@unknown.local`);
 
     await upsertUser({ clerk_user_id: auth.userId, email });
 
     const usage = await getUserPlanUsage(auth.userId);
-    const cached = await findVideoByUrl(auth.userId, youtubeUrl);
+    const cached = transcriptText ? null : await findVideoByUrl(auth.userId, youtubeUrl);
     const cachedContent = Array.isArray((cached as any)?.video_content)
       ? (cached as any).video_content[0]
       : (cached as any)?.video_content;
@@ -112,7 +113,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       upstream = await fetch(`${serverEnv.backendUrl}/api/video/process`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ youtube_url: youtubeUrl }),
+        body: JSON.stringify({
+          youtube_url: youtubeUrl,
+          ...(transcriptText ? { transcript_text: transcriptText } : {}),
+        }),
         signal: controller.signal,
       });
     } catch (error: any) {
