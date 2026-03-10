@@ -187,7 +187,7 @@ export async function saveVideoResult(input: {
     ];
 
     for (const payload of insertVariants) {
-      const inserted = await db.from("videos").insert(payload).select("id").single();
+      const inserted = await db.from("videos").insert(payload as any).select("id").single();
       if (!inserted.error && (inserted.data as any)?.id) {
         savedVideoId = String((inserted.data as any).id);
         break;
