@@ -442,7 +442,7 @@ export async function getVideoForUser(clerkUserId: string, videoId: string) {
       candidates.add(videoId.slice(-11)); // YouTube ids are typically length 11.
     }
 
-    for (const sourceCandidate of candidates) {
+    for (const sourceCandidate of Array.from(candidates)) {
       if (!sourceCandidate) continue;
       const fallback = await db
         .from("videos")
