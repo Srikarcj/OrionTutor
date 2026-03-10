@@ -10,10 +10,10 @@ type UserRow = {
 
 export async function upsertUser(row: UserRow) {
   const db = getDb();
-  const payload: Record<string, string> = {
+  const payload = {
     clerk_user_id: row.clerk_user_id,
     email: row.email,
-  };
+  } as any;
 
   const { data, error } = await db
     .from("users")
