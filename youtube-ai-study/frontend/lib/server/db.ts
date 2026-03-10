@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { readRequired } from "./env";
 
-type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
 
 export type Database = {
   public: {
@@ -29,6 +29,7 @@ export type Database = {
           plan?: "free" | "pro";
           updated_at?: string;
         };
+        Relationships: [];
       };
       videos: {
         Row: {
@@ -55,6 +56,7 @@ export type Database = {
           thumbnail?: string;
           source_video_id?: string;
         };
+        Relationships: [];
       };
       video_content: {
         Row: {
@@ -87,6 +89,7 @@ export type Database = {
           quiz?: Json;
           pdf_url?: string | null;
         };
+        Relationships: [];
       };
       library: {
         Row: {
@@ -106,6 +109,7 @@ export type Database = {
           video_id?: string;
           saved_at?: string;
         };
+        Relationships: [];
       };
       notes: {
         Row: {
@@ -132,6 +136,7 @@ export type Database = {
           transcript?: string;
           topics?: Json | null;
         };
+        Relationships: [];
       };
       mindmap: {
         Row: {
@@ -149,6 +154,7 @@ export type Database = {
         Update: {
           mindmap_json?: Json;
         };
+        Relationships: [];
       };
       flashcards: {
         Row: {
@@ -184,6 +190,7 @@ export type Database = {
           position?: number | null;
           learned?: boolean | null;
         };
+        Relationships: [];
       };
       visual_insights: {
         Row: {
@@ -228,6 +235,7 @@ export type Database = {
           tags?: Json | null;
           key_moment?: boolean | null;
         };
+        Relationships: [];
       };
     };
     Views: {};

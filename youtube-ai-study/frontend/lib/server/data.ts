@@ -198,7 +198,7 @@ export async function saveVideoResult(input: {
     // Keep title/thumbnail fresh for existing rows.
     await db
       .from("videos")
-      .update({ title: input.title, thumbnail: input.thumbnail } as Database["public"]["Tables"]["videos"]["Update"])
+      .update({ title: input.title, thumbnail: input.thumbnail })
       .eq("id", savedVideoId);
   }
 
