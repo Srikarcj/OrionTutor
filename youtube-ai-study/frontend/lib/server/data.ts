@@ -111,8 +111,9 @@ export async function findVideoByUrl(clerkUserId: string, youtubeUrl: string) {
     .eq("video_id", (data as any).id)
     .order("seconds", { ascending: true });
 
+  const baseVideo = data && typeof data === "object" ? data : {};
   return {
-    ...data,
+    ...baseVideo,
     video_content: content || null,
     notes_row: notesRow || null,
     mindmap_row: mindmapRow || null,
