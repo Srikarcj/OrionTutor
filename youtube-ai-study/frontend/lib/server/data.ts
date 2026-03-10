@@ -272,8 +272,8 @@ export async function saveVideoResult(input: {
 
   if (Array.isArray(input.flashcards) && input.flashcards.length) {
     await db.from("flashcards").delete().eq("video_id", savedVideoId);
-    const payload = input.flashcards.map((card, idx) => ({
-      video_id: savedVideoId,
+    const payload: Database["public"]["Tables"]["flashcards"]["Insert"][] = input.flashcards.map((card, idx) => ({
+      video_id: savedVideoId!,
       question: String(card.question || ""),
       answer: String(card.answer || ""),
       category: card.category || null,
